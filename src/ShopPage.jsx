@@ -21,7 +21,6 @@ const SHOP_NAV = [
   { label: 'Home', to: '/' },
   { label: 'Shop All', to: '/shop', active: true },
   { label: 'Books', to: '/shop?category=Books' },
-  { label: 'Merchandise', to: '/shop?category=Home%20%26%20gifts' },
   { label: 'Journals', to: '/shop?category=Journals' },
 ]
 
@@ -184,12 +183,9 @@ export default function ShopPage() {
                     ? 'active'
                     : item.label === 'Books' && category === 'Books'
                       ? 'active'
-                      : item.label === 'Merchandise' &&
-                          category === 'Home & gifts'
+                      : item.label === 'Journals' && category === 'Journals'
                         ? 'active'
-                        : item.label === 'Journals' && category === 'Journals'
-                          ? 'active'
-                          : ''
+                        : ''
                 }
               >
                 {item.label}
@@ -460,7 +456,7 @@ export default function ShopPage() {
             <div className="foot-col">
               <h4>Collections</h4>
               <Link to="/shop?category=Books">Books</Link>
-              <Link to="/shop?category=Home%20%26%20gifts">Merchandise</Link>
+              <Link to="/shop?category=Home%20%26%20gifts">Home &amp; gifts</Link>
               <Link to="/shop">Shop all</Link>
             </div>
             <div className="foot-col">
