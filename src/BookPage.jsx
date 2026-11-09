@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { BookCover, IconCart } from './icons.jsx'
 import { getBook, getPairedBook } from './data/books.js'
+import { parseMoney, useCart } from './cart/CartContext.jsx'
 import './HomePage.css'
 import './BookPage.css'
 
@@ -24,6 +25,7 @@ export default function BookPage() {
   const { slug } = useParams()
   const book = getBook(slug)
   const pair = getPairedBook(slug)
+  const { count, openCart, addItem } = useCart()
 
   const [format, setFormat] = useState('paperback')
   const [qty, setQty] = useState(1)
@@ -43,6 +45,33 @@ export default function BookPage() {
 
   if (!book) return <Navigate to="/" replace />
 
+  function addCurrentBook() {
+    addItem(
+      {
+        id: `${book.slug}-${current.id}`,
+        title: `${book.breadcrumb} (${current.name})`,
+        priceLabel: current.price,
+        unitPrice: parseMoney(current.price),
+        kind: book.coverVariant === 'A' ? 'coverA' : 'coverB',
+        href: `/book/${book.slug}`,
+      },
+      qty,
+    )
+  }
+
+  function addPairBook() {
+    if (!pair) return
+    const paperback = pair.formats[0]
+    addItem({
+      id: `${pair.slug}-paperback`,
+      title: `${pair.breadcrumb} (${paperback.name})`,
+      priceLabel: paperback.price,
+      unitPrice: parseMoney(paperback.price),
+      kind: pair.coverVariant === 'A' ? 'coverA' : 'coverB',
+      href: `/book/${pair.slug}`,
+    })
+  }
+
   return (
     <div className="book-page page">
       <div className="announce">
@@ -61,10 +90,10 @@ export default function BookPage() {
               </Link>
             ))}
           </nav>
-          <a href="#cart" className="bp-cart">
+          <button type="button" className="bp-cart" onClick={openCart}>
             <IconCart />
-            Cart ({qty})
-          </a>
+            Cart ({count})
+          </button>
         </div>
       </header>
 
@@ -155,11 +184,19 @@ export default function BookPage() {
                 +
               </button>
             </div>
-            <button type="button" className="btn bp-add">
+            <button
+              type="button"
+              className="btn bp-add"
+              onClick={addCurrentBook}
+            >
               Add to cart
             </button>
           </div>
-          <button type="button" className="btn ghost bp-buy-now">
+          <button
+            type="button"
+            className="btn ghost bp-buy-now"
+            onClick={addCurrentBook}
+          >
             Buy it now
           </button>
           <p className="bp-amazon">
@@ -231,9 +268,13 @@ export default function BookPage() {
                   &nbsp;·&nbsp; eBook <strong>{pair.formats[2].price}</strong>
                 </div>
                 <div className="bp-pair-actions">
-                  <Link className="btn" to={`/book/${pair.slug}`}>
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={addPairBook}
+                  >
                     Add to cart
-                  </Link>
+                  </button>
                   <Link className="btn ghost" to="/#bundle">
                     Get both: [BUNDLE PRICE]
                   </Link>

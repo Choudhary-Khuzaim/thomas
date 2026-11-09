@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { parseMoney, useCart } from './cart/CartContext.jsx'
 import './HomePage.css'
 import journalImg from './assets/journal-heavenly-lessons.jpg'
 import printImg from './assets/print-eight-themes.jpg'
@@ -471,12 +472,38 @@ function HeroSlideVisual({ slide }) {
 }
 
 export default function HomePage() {
+  const { count, openCart, addItem } = useCart()
   const [filter, setFilter] = useState('All')
   const [heroIndex, setHeroIndex] = useState(0)
   const visible =
     filter === 'All'
       ? PRODUCTS
       : PRODUCTS.filter((p) => p.category === filter)
+
+  function addProduct(product) {
+    addItem({
+      id: product.id,
+      title: product.title,
+      priceLabel: product.price,
+      unitPrice: parseMoney(product.price),
+      kind: product.kind,
+      href: product.slug ? `/book/${product.slug}` : '/shop',
+    })
+  }
+
+  function addFeaturedBook(book) {
+    addItem({
+      id: book.slug,
+      title:
+        book.slug === 'heavenly-lessons'
+          ? 'A Collection of Heavenly Lessons'
+          : 'Trinity in Unity: Themes with Three',
+      priceLabel: book.paperback,
+      unitPrice: parseMoney(book.paperback),
+      kind: book.cover.variant === 'A' ? 'coverA' : 'coverB',
+      href: `/book/${book.slug}`,
+    })
+  }
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -513,10 +540,14 @@ export default function HomePage() {
               <IconAccount />
               Account
             </a>
-            <a href="#" className="util-icon cart">
+            <button
+              type="button"
+              className="util-icon cart"
+              onClick={openCart}
+            >
               <IconCart />
-              Cart (0)
-            </a>
+              Cart ({count})
+            </button>
           </div>
         </div>
       </div>
@@ -670,9 +701,13 @@ export default function HomePage() {
                     eBook <strong>{book.ebook}</strong>
                   </div>
                   <div className="book-card-actions">
-                    <Link className="btn dark" to={`/book/${book.slug}`}>
+                    <button
+                      type="button"
+                      className="btn dark"
+                      onClick={() => addFeaturedBook(book)}
+                    >
                       Add to cart
-                    </Link>
+                    </button>
                     <Link
                       to={`/book/${book.slug}`}
                       className="text-link dark underline"
@@ -742,15 +777,13 @@ export default function HomePage() {
                     <div className="product-cat">{product.category}</div>
                     <h3 className="product-name">{product.title}</h3>
                     <div className="product-price">{product.price}</div>
-                    {product.slug ? (
-                      <Link className="btn product-btn" to={href}>
-                        Add to cart
-                      </Link>
-                    ) : (
-                      <a className="btn product-btn" href={href}>
-                        Add to cart
-                      </a>
-                    )}
+                    <button
+                      type="button"
+                      className="btn product-btn"
+                      onClick={() => addProduct(product)}
+                    >
+                      Add to cart
+                    </button>
                   </div>
                 </article>
               )

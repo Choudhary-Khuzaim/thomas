@@ -90,6 +90,27 @@
   color: var(--gold);
 }
 
+.shop-cart-btn {
+  position: relative;
+}
+
+.shop-cart-count {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .shop-hero {
   padding-top: 56px;
   padding-bottom: 28px;
@@ -442,6 +463,12 @@
   color: var(--gold);
   font-size: 12px;
   letter-spacing: 0.08em;
+}
+
+.shop-card-add {
+  margin-top: 16px;
+  width: 100%;
+  min-height: 44px;
 }
 
 .shop-empty {

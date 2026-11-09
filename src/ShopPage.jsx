@@ -8,6 +8,7 @@ import {
   sortProducts,
 } from './data/products.js'
 import { BookCover, IconAccount, IconCart, IconSearch } from './icons.jsx'
+import { useCart } from './cart/CartContext.jsx'
 import journalImg from './assets/journal-heavenly-lessons.jpg'
 import printImg from './assets/print-eight-themes.jpg'
 import mugImg from './assets/mug-higher-living.jpg'
@@ -88,6 +89,7 @@ function badgeClass(badge) {
 }
 
 export default function ShopPage() {
+  const { count, openCart, addItem } = useCart()
   const [searchParams, setSearchParams] = useSearchParams()
   const paramCategory = searchParams.get('category') || 'All'
 
@@ -205,8 +207,14 @@ export default function ShopPage() {
             <button type="button" className="shop-icon-btn" aria-label="Account">
               <IconAccount />
             </button>
-            <button type="button" className="shop-icon-btn" aria-label="Cart">
+            <button
+              type="button"
+              className="shop-icon-btn shop-cart-btn"
+              aria-label={`Cart, ${count} items`}
+              onClick={openCart}
+            >
               <IconCart />
+              {count > 0 ? <span className="shop-cart-count">{count}</span> : null}
             </button>
           </div>
         </div>
@@ -368,48 +376,63 @@ export default function ShopPage() {
             </div>
           ) : (
             <div className="shop-grid-cards">
-              {filtered.map((product) => {
-                const CardTag = product.href ? Link : 'div'
-                const cardProps = product.href
-                  ? { to: product.href }
-                  : { role: 'group' }
-
-                return (
-                  <CardTag
-                    key={product.id}
-                    className="shop-card"
-                    {...cardProps}
-                  >
-                    <div className="shop-card-media">
-                      {product.badge ? (
-                        <span
-                          className={`shop-card-badge ${badgeClass(product.badge)}`}
-                        >
-                          {product.badge}
-                        </span>
-                      ) : null}
+              {filtered.map((product) => (
+                <article key={product.id} className="shop-card">
+                  <div className="shop-card-media">
+                    {product.badge ? (
+                      <span
+                        className={`shop-card-badge ${badgeClass(product.badge)}`}
+                      >
+                        {product.badge}
+                      </span>
+                    ) : null}
+                    {product.href ? (
+                      <Link
+                        to={product.href}
+                        className="shop-card-visual"
+                        aria-label={product.title}
+                      >
+                        <ProductMedia kind={product.kind} />
+                      </Link>
+                    ) : (
                       <div className="shop-card-visual">
                         <ProductMedia kind={product.kind} />
                       </div>
-                      <div className="shop-card-tags">
-                        {product.tags.slice(0, 2).map((tag) => (
-                          <span key={tag}>{tag}</span>
-                        ))}
-                      </div>
+                    )}
+                    <div className="shop-card-tags">
+                      {product.tags.slice(0, 2).map((tag) => (
+                        <span key={tag}>{tag}</span>
+                      ))}
                     </div>
-                    <div className="shop-card-body">
-                      <h3 className="disp shop-card-title">{product.title}</h3>
-                      <p className="shop-card-sub">{product.subtitle}</p>
-                      <div className="shop-card-meta">
-                        <strong>{product.priceLabel}</strong>
-                        <span className="shop-card-rating">
-                          ★ {product.rating.toFixed(1)}
-                        </span>
-                      </div>
+                  </div>
+                  <div className="shop-card-body">
+                    <h3 className="disp shop-card-title">{product.title}</h3>
+                    <p className="shop-card-sub">{product.subtitle}</p>
+                    <div className="shop-card-meta">
+                      <strong>{product.priceLabel}</strong>
+                      <span className="shop-card-rating">
+                        ★ {product.rating.toFixed(1)}
+                      </span>
                     </div>
-                  </CardTag>
-                )
-              })}
+                    <button
+                      type="button"
+                      className="btn shop-card-add"
+                      onClick={() =>
+                        addItem({
+                          id: product.id,
+                          title: product.title,
+                          priceLabel: product.priceLabel,
+                          unitPrice: product.price,
+                          kind: product.kind,
+                          href: product.href || '/shop',
+                        })
+                      }
+                    >
+                      Add to cart
+                    </button>
+                  </div>
+                </article>
+              ))}
             </div>
           )}
         </div>
